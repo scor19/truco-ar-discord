@@ -1,3 +1,5 @@
+import { serverMessages } from "../../websocketEvents.js";
+
 let activeLobbies = [];
 
 export async function getGames() {
@@ -62,6 +64,10 @@ export async function leaveGame(gameId, player) {
 }
 
 export function createGame(player_host, max_players) {
+  if (isPlayerInAnotherGame(player_host)) {
+    throw new Error("Ya estas en una sala de juego");
+  }
+
   const game = {
     gameId: generateUniqueId(),
     game_status: "waiting",
@@ -81,4 +87,8 @@ export function generateUniqueId() {
     Math.random().toString(36).substring(2, 15) +
     Math.random().toString(36).substring(2, 15)
   );
+}
+
+export function isPlayerInAnotherGame(player) {
+  return activeLobbies.some((game) => game.players.includes(player));
 }

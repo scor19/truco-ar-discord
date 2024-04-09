@@ -12,4 +12,5 @@ export const serverMessages = {
   GAME_CREATED: "game_created",
   GAME_JOINED: "game_joined",
   GAME_LEFT: "game_left",
+  GAME_ERROR: "game_error",
 };
