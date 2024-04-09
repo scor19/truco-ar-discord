@@ -49,6 +49,7 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error("Error al manejar mensaje del cliente:", error);
       // Enviar un mensaje de error al cliente si es necesario
+      socket.emit(serverMessages.GAME_ERROR, error.message);
     }
   });
 
@@ -59,6 +60,7 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error("Error al manejar mensaje del cliente:", error);
       // Enviar un mensaje de error al cliente si es necesario
+      socket.emit(serverMessages.GAME_ERROR, error.message);
     }
   });
 

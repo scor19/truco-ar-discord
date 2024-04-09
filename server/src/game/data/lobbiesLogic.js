@@ -1,6 +1,7 @@
 import { serverMessages } from "../../websocketEvents.js";
 
 let activeLobbies = [];
+let playersHosting = {}; // Objeto para rastrear las salas de los jugadores
 
 export async function getGames() {
   console.log("Get games active lobbies:", activeLobbies);
@@ -16,7 +17,7 @@ export async function joinGame(gameId, player) {
     throw new Error("La sala de juego no existe");
   }
 
-  if (selectedGame.players.length >= selectedGame.num_players) {
+  if (selectedGame.players.length >= selectedGame.max_players) {
     throw new Error("La sala de juego ya ha alcanzado el maximo de jugadores");
   }
 
@@ -60,12 +61,16 @@ export async function leaveGame(gameId, player) {
     console.log(error);
   }
 
+  if (isPlayerHosting(player)) {
+    delete playersHosting[player];
+  }
+
   return updatedGame;
 }
 
 export function createGame(player_host, max_players) {
-  if (isPlayerInAnotherGame(player_host)) {
-    throw new Error("Ya estas en una sala de juego");
+  if (isPlayerHosting(player_host)) {
+    throw new Error("Ya eres anfitrion de una partida.");
   }
 
   const game = {
@@ -78,6 +83,8 @@ export function createGame(player_host, max_players) {
   };
 
   activeLobbies.push(game);
+  playersHosting[player_host] = game.gameId;
+
   console.log("Active games:", activeLobbies);
   return game;
 }
@@ -89,6 +96,6 @@ export function generateUniqueId() {
   );
 }
 
-export function isPlayerInAnotherGame(player) {
-  return activeLobbies.some((game) => game.players.includes(player));
+function isPlayerHosting(player) {
+  return playersHosting[player] !== undefined;
 }
