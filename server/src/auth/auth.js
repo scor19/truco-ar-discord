@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import db from "../db/database.js";
+import { serialize } from "cookie";
 
-export async function authenticate(username, password) {
+export async function authenticate(username, password, res) {
   // Busca al usuario en la base de datos
   const [users] = await db.query("SELECT * FROM users WHERE username = ?", [
     username,
@@ -18,12 +19,24 @@ export async function authenticate(username, password) {
     expiresIn: "1h",
   });
 
+  // Configura la cookie con el token
+  const cookie = serialize("token", token, {
+    httpOnly: true,
+    maxAge: 3600, // 1 hora
+    path: "/", // La cookie estará disponible en todas las rutas del dominio
+    sameSite: "strict", // La cookie no se enviará en solicitudes de otros sitios
+    secure: process.env.NODE_ENV === "production", // Solo enviar en entorno de producción (HTTPS)
+  });
+
+  // Envía la cookie al cliente
+  res.setHeader("Set-Cookie", cookie);
+
   return token;
 }
 
 export function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  //TODO: Implementar lógica de cookies
+  const token = req.cookies.token;
 
   if (token == null) {
     return res.sendStatus(401);

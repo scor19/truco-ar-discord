@@ -5,10 +5,10 @@ const router = express.Router();
 
 router.post("/authenticate", async (req, res) => {
   try {
-    const token = await authenticate(req.body.username, req.body.password);
-    res.json({ token });
+    const token = await authenticate(req.body.username, req.body.password, res);
+    res.status(200).json({ token });
   } catch (error) {
-    res.status(401).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
